@@ -1,35 +1,32 @@
-FROM ubuntu
-MAINTAINER Ricardo Catalinas <ricardo.catalinas@bigdatapartnership.com>
+FROM ubuntu:utopic
+MAINTAINER Bobby Powers <bobbypowers@gmail.com>
 
 ENV TERM linux
 
 # Install Java
-RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu trusty main" >/etc/apt/sources.list.d/webupd8team-java.list
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886
-RUN apt-get update
-RUN apt-get dist-upgrade -y
-RUN apt-get install -y curl
+RUN echo "deb http://ppa.launchpad.net/webupd8team/java/ubuntu utopic main" >/etc/apt/sources.list.d/webupd8team-java.list && \
+	apt-key adv --keyserver keyserver.ubuntu.com --recv-keys EEA14886 && \
+	apt-get update && \
+	apt-get install -y curl sudo
 
-# Preemptively accept the Oracle License and install the JDK
-RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections
-RUN apt-get install -y oracle-java8-installer oracle-java8-set-default
-# Enable JNA
-RUN curl -L -o /usr/lib/jvm/java-8-oracle/jre/lib/ext/jna.jar https://github.com/twall/jna/raw/master/dist/jna.jar
+# Preemptively accept the Oracle License, install the JDK & enable JNA
+RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+	apt-get install -y oracle-java8-installer oracle-java8-set-default && \
+	curl -L -o /usr/lib/jvm/java-8-oracle/jre/lib/ext/jna.jar https://github.com/twall/jna/raw/master/dist/jna.jar
 
 # Install Cassandra
-RUN echo "deb http://debian.datastax.com/community stable main" >/etc/apt/sources.list.d/datastax.list
-RUN curl -L http://debian.datastax.com/debian/repo_key | apt-key add -
-RUN apt-get update
-#RUN apt-get install -y dsc12=1.2.16-1 cassandra=1.2.16
-RUN apt-get install -y dsc20
-RUN apt-get clean
+RUN echo "deb http://debian.datastax.com/community stable main" >/etc/apt/sources.list.d/datastax.list && \
+	curl -L http://debian.datastax.com/debian/repo_key | apt-key add - && \
+	apt-get update && \
+	apt-get install -y dsc21 && \
+	rm -rf /var/lib/apt/lists/*
 
 ADD cassandra-start /usr/sbin/
-RUN chown root:root /usr/sbin/cassandra-start
-RUN chmod 755 /usr/sbin/cassandra-start
+RUN chown root:root /usr/sbin/cassandra-start && \
+	chmod 755 /usr/sbin/cassandra-start
 
-# Storage port, encrypted storage, JMX, Thrift, CQL Native
-EXPOSE 7000 7001 7199 9160 9042
+# Storage port, encrypted storage, JMX, CQL Native
+EXPOSE 7000 7001 7199 9042
 
 VOLUME ["/var/lib/cassandra", "/var/log/cassandra"]
 
