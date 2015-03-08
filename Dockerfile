@@ -18,15 +18,15 @@ RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-s
 RUN echo "deb http://debian.datastax.com/community stable main" >/etc/apt/sources.list.d/datastax.list && \
 	curl -L http://debian.datastax.com/debian/repo_key | apt-key add - && \
 	apt-get update && \
-	apt-get install -y dsc21 && \
+	apt-get install -y dsc20 cassandra=2.0.12 && \
 	rm -rf /var/lib/apt/lists/*
 
 ADD cassandra-start /usr/sbin/
 RUN chown root:root /usr/sbin/cassandra-start && \
 	chmod 755 /usr/sbin/cassandra-start
 
-# Storage port, encrypted storage, JMX, CQL Native
-EXPOSE 7000 7001 7199 9042
+# Storage port, encrypted storage, JMX, CQL Native, Thrift
+EXPOSE 7000 7001 7199 9042 9160
 
 VOLUME ["/var/lib/cassandra", "/var/log/cassandra"]
 
