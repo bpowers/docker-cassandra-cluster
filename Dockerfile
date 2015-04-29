@@ -18,7 +18,7 @@ RUN echo debconf shared/accepted-oracle-license-v1-1 select true | debconf-set-s
 RUN echo "deb http://debian.datastax.com/community stable main" >/etc/apt/sources.list.d/datastax.list && \
 	curl -L http://debian.datastax.com/debian/repo_key | apt-key add - && \
 	apt-get update && \
-	apt-get install -y dsc21 && \
+	apt-get install -y dsc21 cassandra=2.1.4 && \
 	rm -rf /var/lib/apt/lists/*
 
 ADD cassandra-start /usr/sbin/
